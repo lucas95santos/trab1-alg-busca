@@ -51,10 +51,6 @@ def generate_sons(s):
    
 
 
-
-
-
-
 # Busca em largura
 def bfs(start):
 	candidates = [start]
@@ -75,11 +71,11 @@ def bfs(start):
 			res.append(start)
 			res.reverse()
 			print("Solucao encontrada: ", res)
+			
+		#generation = generate_sons(father)	
 		
 		for son in generate_sons(father):
 			if son not in visited:
-				#print("Enfileirado: ", son, father)
-				#print("")
 				visited.append(son)
 				fathers[son_to_str(son)] = father
 				#verificando se o numero de canibais sempre é menor que o de missionarios
@@ -93,9 +89,57 @@ def bfs(start):
 
 # Busca em profundidade
 # A implementar
-def dfs():
-	return 0;
+def dfs(start):
+	candidates = [start]
+	fathers = dict()
+	visited = [start]
 
+	while len(candidates)>0:
+		father = candidates[0]
+		print("Lista de candidatos: ", candidates)
+		
+		"""na busca em profundidade usa-se pilha, ñ fila"""
+		#del candidates[0]
+		print("Visitado: ", father)
+		if is_goal(father):
+			res = []
+			node = father
+			while node != start:
+				res.append(node)
+				node = fathers[son_to_str(node)]
+			res.append(start)
+			res.reverse()
+			print("Solucao encontrada: ", res)
+		
+		number_of_sons = len(generate_sons(father))
+		number_of_sons_visited = 0
+		
+		for son in generate_sons(father):
+			#if son not in visited:
+			if (son not in visited) and not(is_goal(father)):
+				visited.append(son)
+				fathers[son_to_str(son)] = father
+				#verificando se o numero de canibais sempre é menor que o de missionarios
+				
+				if (son[0] >= son[1] or son[0] == 0 or son[1] == 0) and (3-son[0] >= 3-son[1] or 3-son[0] == 0 or 3-son[1] == 0):
+					#deve-se empilhar, ñ enfileirar
+					print("Empilhado: ", son, father)
+					print("")
+					candidates.insert(0, son)
+					break;
+			else:
+				number_of_sons_visited += 1
+				
+					
+		
+		""" Verifica se todos os filhos foram visitados, se sim:
+		    Remover o pai da iteração atual - ele esta em candidates[0]
+		"""
+		if number_of_sons == number_of_sons_visited:
+			del candidates[0]
+			print("Fim de um ramo\n")
+	
+	
 
 # Busca A*
 # A implementar
@@ -104,5 +148,7 @@ def a_star():
 
 
 if __name__ == '__main__':
-	bfs([3,3,1])
+	#bfs([3,3,1])
+	dfs([3,3,1])
+	#a_star([3,3,1])
 	
