@@ -150,4 +150,5 @@ def a_star():
 if __name__ == '__main__':
 	#bfs([3,3,1])
 	dfs([3,3,1])
+	#a_star([3,3,1])
 	
