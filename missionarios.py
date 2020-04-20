@@ -115,7 +115,8 @@ def dfs(start):
 		number_of_sons_visited = 0
 		
 		for son in generate_sons(father):
-			if son not in visited:
+			#if son not in visited:
+			if (son not in visited) and not(is_goal(father)):
 				visited.append(son)
 				fathers[son_to_str(son)] = father
 				#verificando se o numero de canibais sempre é menor que o de missionarios
@@ -147,6 +148,6 @@ def a_star():
 
 
 if __name__ == '__main__':
-	bfs([3,3,1])
-	#dfs([3,3,1])
+	#bfs([3,3,1])
+	dfs([3,3,1])
 	
