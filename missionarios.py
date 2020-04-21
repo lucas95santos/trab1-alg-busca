@@ -12,10 +12,7 @@ def son_to_str(s):
 
 # verifica se é o estado final
 def is_goal(s):
-	if s == [0, 0, 0]:
-		return True
-	else: 
-		return False
+	return s == [0, 0, 0]
 
 # gera filhos
 def generate_sons(s):
