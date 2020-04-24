@@ -191,7 +191,7 @@ def a_star(start, end):
 
         del candidates[index]
         if len(node_score_function_value) > 0:
-            print("f(", father, ") = ", node_score_function_value[index])
+            print("FA =", node_score_function_value[index])
             del node_score_function_value[index]
 
         if is_goal(father, end):
