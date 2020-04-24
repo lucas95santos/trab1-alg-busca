@@ -69,8 +69,13 @@ def nodes_family_tree(node, fathers):
     return parents
 
 
-# Busca em largura
 def bfs(start, end):
+    """ Realiza a busca em largura para o problema.
+
+    :param start: estado inicial do problema.
+    :param end: solução e estado final do problema.
+    """
+
     candidates = [start]
     fathers = dict()
     visited = [start]
@@ -96,8 +101,13 @@ def bfs(start, end):
                     candidates.append(son)
 
 
-# Busca em profundidade
 def dfs(start, end):
+    """ Realiza a busca em profundidade para o problema.
+
+    :param start: estado inicial do problema.
+    :param end: solução e estado final do problema.
+    """
+
     candidates = [start]
     fathers = dict()
     visited = [start]
@@ -149,6 +159,9 @@ def score_function(son, fathers):
 
     A função de custo utilizada para esse problema é 1 por operação. Logo a variável cost_function irá receber o
     número - 1 de pais que um nó tem.
+
+    :param son: o filho para o qual será calculada a função de avaliação.
+    :param fathers: os pais até raiz desse filho.
     """
 
     np_son = np.array(son)  # Transforma a lista em um np array.
@@ -156,7 +169,6 @@ def score_function(son, fathers):
     return np_son.sum() + cost_function
 
 
-# Busca A*
 def a_star(start, end):
     """ Realiza a busca A* para o problema.
 
@@ -175,12 +187,13 @@ def a_star(start, end):
 
     while len(candidates) > 0:
         print("Candidatos: ", candidates)
-        del candidates[index]
+        print("Visitado: ", father)
 
+        del candidates[index]
         if len(node_score_function_value) > 0:
+            print("f(", father, ") = ", node_score_function_value[index])
             del node_score_function_value[index]
 
-        print("Visitado: ", father)
         if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
@@ -204,6 +217,6 @@ def a_star(start, end):
 
 
 if __name__ == '__main__':
-    bfs(initial_state, final_state)
+    # bfs(initial_state, final_state)
     # dfs(initial_state, final_state)
-    #a_star(initial_state, final_state)
+    a_star(initial_state, final_state)
