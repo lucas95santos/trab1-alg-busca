@@ -9,6 +9,7 @@
 import numpy as np
 
 initial_state = [3, 3, 1]
+final_state = [0, 0, 0]
 
 
 def son_to_str(s):
@@ -16,8 +17,8 @@ def son_to_str(s):
 
 
 # verifica se é o estado final
-def is_goal(s):
-    return s == [0, 0, 0]
+def is_goal(s, final_state):
+    return s == final_state
 
 
 # Esse vetor é o estado da população da margem esquerda do rio, sendo que s[0] (s na posição 0) é o valor de
@@ -68,8 +69,13 @@ def nodes_family_tree(node, fathers):
     return parents
 
 
-# Busca em largura
-def bfs(start):
+def bfs(start, end):
+    """ Realiza a busca em largura para o problema.
+
+    :param start: estado inicial do problema.
+    :param end: solução e estado final do problema.
+    """
+
     candidates = [start]
     fathers = dict()
     visited = [start]
@@ -79,7 +85,7 @@ def bfs(start):
         print("Lista de candidatos: ", candidates)
         del candidates[0]
         print("Visitado: ", father)
-        if is_goal(father):
+        if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
 
@@ -95,8 +101,13 @@ def bfs(start):
                     candidates.append(son)
 
 
-# Busca em profundidade
-def dfs(start):
+def dfs(start, end):
+    """ Realiza a busca em profundidade para o problema.
+
+    :param start: estado inicial do problema.
+    :param end: solução e estado final do problema.
+    """
+
     candidates = [start]
     fathers = dict()
     visited = [start]
@@ -108,7 +119,7 @@ def dfs(start):
         """Na busca em profundidade usa-se pilha, não fila."""
         # del candidates[0]
         print("Visitado: ", father)
-        if is_goal(father):
+        if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
 
@@ -117,7 +128,7 @@ def dfs(start):
 
         for son in generate_sons(father):
             # if son not in visited:
-            if (son not in visited) and not (is_goal(father)):
+            if (son not in visited) and not (is_goal(father, end)):
                 visited.append(son)
                 fathers[son_to_str(son)] = father
 
@@ -148,6 +159,9 @@ def score_function(son, fathers):
 
     A função de custo utilizada para esse problema é 1 por operação. Logo a variável cost_function irá receber o
     número - 1 de pais que um nó tem.
+
+    :param son: o filho para o qual será calculada a função de avaliação.
+    :param fathers: os pais até raiz desse filho.
     """
 
     np_son = np.array(son)  # Transforma a lista em um np array.
@@ -155,8 +169,13 @@ def score_function(son, fathers):
     return np_son.sum() + cost_function
 
 
-# Busca A*
-def a_star(start):
+def a_star(start, end):
+    """ Realiza a busca A* para o problema.
+
+    :param start: estado inicial do problema
+    :param end: solução e estado final do problema
+    """
+
     # Lista de valores da função de avaliação de cada nó.
     # O índice dessa lista equivale ao índice da lista de candidatos.
     node_score_function_value = []
@@ -168,18 +187,19 @@ def a_star(start):
 
     while len(candidates) > 0:
         print("Candidatos: ", candidates)
-        del candidates[index]
+        print("Visitado: ", father)
 
+        del candidates[index]
         if len(node_score_function_value) > 0:
+            print("FA =", node_score_function_value[index])
             del node_score_function_value[index]
 
-        print("Visitado: ", father)
-        if is_goal(father):
+        if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
 
         for son in generate_sons(father):
-            if son not in visited and not is_goal(father):
+            if son not in visited and not is_goal(father, end):
                 visited.append(son)
                 fathers[son_to_str(son)] = father
 
@@ -197,6 +217,6 @@ def a_star(start):
 
 
 if __name__ == '__main__':
-    # bfs([3,3,1])
-    # dfs([3, 3, 1])
-    a_star([3, 3, 1])
+    # bfs(initial_state, final_state)
+    # dfs(initial_state, final_state)
+    a_star(initial_state, final_state)
