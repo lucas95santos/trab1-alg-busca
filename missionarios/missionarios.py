@@ -9,6 +9,7 @@
 import numpy as np
 
 initial_state = [3, 3, 1]
+final_state = [0, 0, 0]
 
 
 def son_to_str(s):
@@ -16,8 +17,8 @@ def son_to_str(s):
 
 
 # verifica se é o estado final
-def is_goal(s):
-    return s == [0, 0, 0]
+def is_goal(s, final_state):
+    return s == final_state
 
 
 # Esse vetor é o estado da população da margem esquerda do rio, sendo que s[0] (s na posição 0) é o valor de
@@ -69,7 +70,7 @@ def nodes_family_tree(node, fathers):
 
 
 # Busca em largura
-def bfs(start):
+def bfs(start, end):
     candidates = [start]
     fathers = dict()
     visited = [start]
@@ -79,7 +80,7 @@ def bfs(start):
         print("Lista de candidatos: ", candidates)
         del candidates[0]
         print("Visitado: ", father)
-        if is_goal(father):
+        if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
 
@@ -96,7 +97,7 @@ def bfs(start):
 
 
 # Busca em profundidade
-def dfs(start):
+def dfs(start, end):
     candidates = [start]
     fathers = dict()
     visited = [start]
@@ -108,7 +109,7 @@ def dfs(start):
         """Na busca em profundidade usa-se pilha, não fila."""
         # del candidates[0]
         print("Visitado: ", father)
-        if is_goal(father):
+        if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
 
@@ -117,7 +118,7 @@ def dfs(start):
 
         for son in generate_sons(father):
             # if son not in visited:
-            if (son not in visited) and not (is_goal(father)):
+            if (son not in visited) and not (is_goal(father, end)):
                 visited.append(son)
                 fathers[son_to_str(son)] = father
 
@@ -156,7 +157,13 @@ def score_function(son, fathers):
 
 
 # Busca A*
-def a_star(start):
+def a_star(start, end):
+    """ Realiza a busca A* para o problema.
+
+    :param start: estado inicial do problema
+    :param end: solução e estado final do problema
+    """
+
     # Lista de valores da função de avaliação de cada nó.
     # O índice dessa lista equivale ao índice da lista de candidatos.
     node_score_function_value = []
@@ -174,12 +181,12 @@ def a_star(start):
             del node_score_function_value[index]
 
         print("Visitado: ", father)
-        if is_goal(father):
+        if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
             print("Solucao encontrada: ", solution)
 
         for son in generate_sons(father):
-            if son not in visited and not is_goal(father):
+            if son not in visited and not is_goal(father, end):
                 visited.append(son)
                 fathers[son_to_str(son)] = father
 
@@ -197,6 +204,6 @@ def a_star(start):
 
 
 if __name__ == '__main__':
-    # bfs([3,3,1])
-    # dfs([3, 3, 1])
-    a_star([3, 3, 1])
+    bfs(initial_state, final_state)
+    # dfs(initial_state, final_state)
+    #a_star(initial_state, final_state)
