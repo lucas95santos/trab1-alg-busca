@@ -6,17 +6,18 @@
 	Lucas Antonio dos Santos - 2016.1907.013-8
 """
 
+initial_state = [0,0]
 
-def son2str(s):
+def son_to_str(s):
 	return ' '.join([str(v) for v in s])
 
-def isGoal(s):
+def is_goal(s):
 	goal = False
 	if s[0] == 4 or s[1] == 4:
 		goal = True
 	return goal
 
-def generateSons(s):
+def generate_sons(s):
 
 	listOfSons = []
 
@@ -52,6 +53,59 @@ def generateSons(s):
 
 	return listOfSons
 
+
+def nodes_family_tree(node, fathers):
+    parents = []
+    while node != initial_state:
+        parents.append(node)
+        node = fathers[son_to_str(node)]
+    parents.append(initial_state)
+    parents.reverse()
+
+    return parents
+
+def dfs(start):
+    candidates = [start]
+    fathers = dict()
+    visited = [start]
+
+    while len(candidates) > 0:
+        father = candidates[0]
+        print("Lista de candidatos: ", candidates)
+
+        """Na busca em profundidade usa-se pilha, não fila."""
+        # del candidates[0]
+        print("Visitado: ", father)
+        if is_goal(father):
+            solution = nodes_family_tree(father, fathers)
+            print("Solucao encontrada: ", solution)
+
+        number_of_sons = len(generate_sons(father))
+        number_of_sons_visited = 0
+
+        for son in generate_sons(father):
+            # if son not in visited:
+            if (son not in visited) and not (is_goal(father)):
+                visited.append(son)
+                fathers[son_to_str(son)] = father
+
+                # verificando se o numero de canibais sempre é menor que o de missionarios
+                
+                # Deve-se empilhar, não enfileirar
+                print("Empilhado: ", son, father)
+                print("")
+                candidates.insert(0, son)
+                break
+            else:
+                number_of_sons_visited += 1
+
+        """ Verifica se todos os filhos foram visitados, se sim:
+            Remove o pai da iteração atual - ele esta em candidates[0]
+        """
+        if number_of_sons == number_of_sons_visited:
+            del candidates[0]
+            print("Fim de um ramo\n")
+
 def bfs(start):
 	candidates = [start]
 	fathers = dict()
@@ -62,24 +116,23 @@ def bfs(start):
 		print("Lista de candidatos: ", candidates)
 		del candidates[0]
 		print("Visitado: ", father)
-		if isGoal(father):
+		if is_goal(father):
 			res = []
 			node = father
 			while node != start:
 				res.append(node)
-				node = fathers[son2str(node)]
+				node = fathers[son_to_str(node)]
 			res.append(start)
 			res.reverse()
 			print("Solucao encontrada: ", res)
 		
-		for son in generateSons(father):
+		for son in generate_sons(father):
 			if son not in visited:
 				print("Enfileirado: ", son, father)
 				visited.append(son)
-				fathers[son2str(son)] = father
+				fathers[son_to_str(son)] = father
 				candidates.append(son)
 
 if __name__ == '__main__':
-	bfs([0,0])
-
-
+	#bfs([0,0])
+    dfs([0,0])
