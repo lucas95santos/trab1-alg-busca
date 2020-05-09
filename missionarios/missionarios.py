@@ -1,9 +1,19 @@
 """
-	Nome - RGA:
-	Fábio Holanda Saraiva Júnior - 2015.1905.006-2
-	Felipe Salles Lopes - 2016.1907.032-4
-	Lucas Avanzi - 2016.1907.024-3
-	Lucas Antonio dos Santos - 2016.1907.013-8
+    Nome - RGA:
+    Fábio Holanda Saraiva Júnior - 2015.1905.006-2
+    Felipe Salles Lopes - 2016.1907.032-4
+    Lucas Avanzi - 2016.1907.024-3
+    Lucas Antonio dos Santos - 2016.1907.013-8
+
+    O algoritmo foi concebido para solucionar o problema dos missionários e canibais, no qual consiste em passar os três
+    missionários e os três canibais para o lado direito do rio. No entanto há certas restrições para se fazer isso: há
+    apenas um barco no qual o mínimo de passageiros é 1 e o máximo é 2 e número de missionários nunca pode ser menor que
+    que o número de canibais em qualquer lado do rio com o risco de serem atacados.
+    Foram criadas três soluções para solucionar o problema. São elas: pela busca em largura, pelas busca em profundidade
+    e pela busca A*.
+    Para a representação do problema, foi criado um vetor no qual para cada posição o seu valor corresponde ao número de
+    missionários, canibais e barco respectivamente na margem esquerda do rio. Ex: [3,3,1] equivale a 3 missionários, 3
+    canibais e 1 barco na margem esquerda do rio.
 """
 
 import numpy as np
@@ -21,12 +31,11 @@ def is_goal(s, final_state):
     return s == final_state
 
 
-# Esse vetor é o estado da população da margem esquerda do rio, sendo que s[0] (s na posição 0) é o valor de
-# missionários na margem esquerda, s[1] é o valor de canibais na margem esquerda e s[2] é o valor do barco na margem
-# esquerda, sendo que 1 significa que ele está na margem esquerda e 0 que não está.
-
-# gera filhos
 def generate_sons(s):
+    """ Gera os filhos possíveis para um determinado nó.
+    :param s: o nó no qual terá seus filhos gerados.
+    :return: lista de filhos que um nó possui.
+    """
     list_of_sons = []
 
     # caminho da margem esquerda para a direita
@@ -59,6 +68,11 @@ def generate_sons(s):
 
 
 def nodes_family_tree(node, fathers):
+    """ Percorre os pais do nó atual até chegar no pai de todos (nó raiz - mais conhecido como Odin).
+    :param node: Nó atual no qual se deseja obter os seus pais.
+    :param fathers: Dicionário de pais que armazena todos os pais de um nó.
+    :return: Lista dos pais do nó atual começando pelo primeiro pai (pai raiz - Odin)
+    """
     parents = []
     while node != initial_state:
         parents.append(node)
@@ -71,7 +85,6 @@ def nodes_family_tree(node, fathers):
 
 def bfs(start, end):
     """ Realiza a busca em largura para o problema.
-
     :param start: estado inicial do problema.
     :param end: solução e estado final do problema.
     """
@@ -103,7 +116,6 @@ def bfs(start, end):
 
 def dfs(start, end):
     """ Realiza a busca em profundidade para o problema.
-
     :param start: estado inicial do problema.
     :param end: solução e estado final do problema.
     """
@@ -116,8 +128,7 @@ def dfs(start, end):
         father = candidates[0]
         print("Lista de candidatos: ", candidates)
 
-        """Na busca em profundidade usa-se pilha, não fila."""
-        # del candidates[0]
+        # Na busca em profundidade usa-se pilha, não fila.
         print("Visitado: ", father)
         if is_goal(father, end):
             solution = nodes_family_tree(father, fathers)
@@ -127,12 +138,12 @@ def dfs(start, end):
         number_of_sons_visited = 0
 
         for son in generate_sons(father):
-            # if son not in visited:
+
             if (son not in visited) and not (is_goal(father, end)):
                 visited.append(son)
                 fathers[son_to_str(son)] = father
 
-                # verificando se o numero de canibais sempre é menor que o de missionarios
+                # Verificando se o numero de canibais sempre é menor que o de missionarios
                 if (son[0] >= son[1] or son[0] == 0 or son[1] == 0) and (
                         3 - son[0] >= 3 - son[1] or 3 - son[0] == 0 or 3 - son[1] == 0):
                     # Deve-se empilhar, não enfileirar
@@ -143,23 +154,19 @@ def dfs(start, end):
             else:
                 number_of_sons_visited += 1
 
-        """ Verifica se todos os filhos foram visitados, se sim:
-            Remove o pai da iteração atual - ele esta em candidates[0]
-        """
+        # Verifica se todos os filhos foram visitados, se sim:
+        # Remove o pai da iteração atual - ele esta em candidates[0]
         if number_of_sons == number_of_sons_visited:
             del candidates[0]
             print("Fim de um ramo\n")
 
 
 def score_function(son, fathers):
-    """Calcula a função de avaliação do problema para a busca por A e retorna a soma da heurística e o custo.*
-
+    """ Calcula a função de avaliação do problema para a busca por A* e retorna a soma da heurística e o custo.
     A heurística usada para esse problema é a Distância de Manhattan, na qual calcula a distância entre o nó atual e o
     nó objetivo.
-
     A função de custo utilizada para esse problema é 1 por operação. Logo a variável cost_function irá receber o
     número - 1 de pais que um nó tem.
-
     :param son: o filho para o qual será calculada a função de avaliação.
     :param fathers: os pais até raiz desse filho.
     """
@@ -171,7 +178,6 @@ def score_function(son, fathers):
 
 def a_star(start, end):
     """ Realiza a busca A* para o problema.
-
     :param start: estado inicial do problema
     :param end: solução e estado final do problema
     """
