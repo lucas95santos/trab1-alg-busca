@@ -88,8 +88,6 @@ def dfs(start):
             if (son not in visited) and not (is_goal(father)):
                 visited.append(son)
                 fathers[son_to_str(son)] = father
-
-                # verificando se o numero de canibais sempre é menor que o de missionarios
                 
                 # Deve-se empilhar, não enfileirar
                 print("Empilhado: ", son, father)
