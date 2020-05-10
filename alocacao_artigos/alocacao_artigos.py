@@ -9,18 +9,16 @@
         Utilizar versão 3.6 do python ou superior para correta execução do programa
 """
 
-
 import csv
 import copy
 import random
 
-#arquivos
+# arquivos
 inputpath = "./input.txt"
 graphic = "fitness.png"
 output = "saida-genetico.txt"
 
-
-#parametros
+# parametros
 
 """
 
@@ -49,25 +47,25 @@ mutationrate = 0.2
 maxgen = 100
 
 
-#realiza leitura do arquivo e retorna uma lista de listas 
+# realiza leitura do arquivo e retorna uma lista de listas
 def read_input_file():
     file_ = open(inputpath, "r")
     reader = csv.reader(file_)
     data = list(reader)
     for i in range(len(data)):
         for j in range(len(data[i])):
-            data[i][j] = int(data[i][j])        
+            data[i][j] = int(data[i][j])
     return data
 
-    
-    
-#recebe uma lista e escreve no arquivo de saida a solucação encontrada
+
+# recebe uma lista e escreve no arquivo de saida a solucação encontrada
 def write_output_file(s):
     file_ = open(output, 'w')
     writer = csv.writer(file_)
     writer.writerows(s)
     file_.close()
-    
+
+
 """
     Parâmetros:
     []crossover
@@ -77,103 +75,104 @@ def write_output_file(s):
     Processo de seleção por roleta
 """
 
-#geração da populaçao aleatoria
-def random_population(data, n, m, number_of_individuals):
-    p = [] #lista da população gerada
+
+# geração da populaçao aleatoria
+def random_population(data, reviewer_amount, max_articles, number_of_individuals):
+    population = []  # Lista da população gerada.
     for j in range(number_of_individuals):
         new_guy = []
-        for s in range(m):
-            while len(new_guy) < m:
-                x = random.randint(1, n)
-                if new_guy.count(x) < data[x-1][m]:
-                    new_guy.append(x)
-        p.append(new_guy)
-    return p
+        for s in range(max_articles):
+            while len(new_guy) < max_articles:
+                random_reviewer = random.randint(1, reviewer_amount)  # Gera um número aleatório de 1 à quantidade de
+                # revisores.
 
-#A função de fitness considera o grau de satisfação dos corretores em relação a distribuição escolhida
+                if new_guy.count(random_reviewer) < data[random_reviewer - 1][max_articles]:
+                    new_guy.append(random_reviewer)
+        population.append(new_guy)
+    return population
+
+
+# A função de fitness considera o grau de satisfação dos corretores em relação a distribuição escolhida
 def fitness(data, generation):
-    f = []
+    fitness_func = []
     for k in range(len(generation)):
-        soma = 0
+        sum = 0
         for l in range(len(generation[k])):
-            soma += data[generation[k][l]-1][l]
-        f.append(soma)
-    return f
-        
-    
+            sum += data[generation[k][l] - 1][l]
+        fitness_func.append(sum)
+    return fitness_func
+
+
 def crossover(individuos1, individuos2):
     sons = []
-    #calculo dos indices crossover
-    limit = int(round(len(individuos1[0])*crossover_rate))
+    # calculo dos indices crossover
+    limit = int(round(len(individuos1[0]) * crossover_rate))
     for i in range(len(individuos1)):
-        son1 = individuos1[i][:limit]+individuos2[i][limit:]
-        son2 = individuos2[i][:limit]+individuos1[i][limit:]
+        son1 = individuos1[i][:limit] + individuos2[i][limit:]
+        son2 = individuos2[i][:limit] + individuos1[i][limit:]
         sons.append(son1)
         sons.append(son2)
-        
+
     return sons
+
 
 def select_sons(data, sons, n_individuals):
     F = fitness(data, sons)
-    ordained_sons = [x for _,x in sorted(zip(F,sons))]
-    #print("sons: ", sons)
-    #print("fitness: ", F)
-    #print("order:", ordained_sons[n_individuals:], "\n")
+    ordained_sons = [x for _, x in sorted(zip(F, sons))]
+    # print("sons: ", sons)
+    # print("fitness: ", F)
+    # print("order:", ordained_sons[n_individuals:], "\n")
     return ordained_sons[n_individuals:]
-    
-       
+
+
 def mutation(data, best_sons, n, m, n_individuals):
     kids_mutation = []
-    #percorrer individuos
-    for i in range(n_individuals):        
-        
-        #print (int(round((n_individuals)*mutationrate)))
+    # percorrer individuos
+    for i in range(n_individuals):
+
+        # print (int(round((n_individuals)*mutationrate)))
         # percorrer numero de alterções "nos genes"
-        for j in range(int(round((n_individuals)*mutationrate))):
+        for j in range(int(round((n_individuals) * mutationrate))):
             index_visited = []
             while True:
-                #gerar possivel indice
-                random_index = random.randint(0,m-1)
-                #gerar possivel corretor
-                random_corretor = random.randint(0, n-1)
+                # gerar possivel indice
+                random_index = random.randint(0, m - 1)
+                # gerar possivel corretor
+                random_corretor = random.randint(0, n - 1)
                 possible_kid = copy.copy(best_sons[i])
-                possible_kid[random_index] = random_corretor+1
-                
-                if (random_index not in index_visited and 
-                    possible_kid.count(random_corretor+1) <= data[random_corretor][m] and
-                    possible_kid != best_sons[i]):
-                    index_visited.append(random_index)
-                    kids_mutation.append(possible_kid)                    
-                    break
-                
-    return kids_mutation
-                
-            
+                possible_kid[random_index] = random_corretor + 1
 
-def genetic_algotithm(data, n_individuals):
-    
-    # n presenta o numero de revisores cadastrados
-    n = len(data)
-    # m numero de artigos a serem atribuidos
-    m = len(data[0])-1
-    
-    population = random_population(data, n, m, n_individuals)
-    
-    
-    #TODO: estrutura de repetição
+                if (random_index not in index_visited and
+                        possible_kid.count(random_corretor + 1) <= data[random_corretor][m] and
+                        possible_kid != best_sons[i]):
+                    index_visited.append(random_index)
+                    kids_mutation.append(possible_kid)
+                    break
+
+    return kids_mutation
+
+
+def genetic_algorithm(data, n_individuals):
+    # reviewers_amount representa o número de revisores cadastrados.
+    reviewers_amount = len(data)
+    # max_articles equivale ao número de artigos a serem atribuidos para determinado revisor.
+    max_articles = len(data[0]) - 1
+
+    population = random_population(data, reviewers_amount, max_articles, n_individuals)
+
+    # TODO: estrutura de repetição
     for g in range(maxgen):
-    
+
         f = fitness(data, population)
-            
-        #gera pares diferentes
-        #seleção por roleta
-        #usar python3.6 ou versão mais atualizada
-        
+
+        # gera pares diferentes
+        # seleção por roleta
+        # usar python3.6 ou versão mais atualizada
+
         #
         #
         #
-        
-        
+
         individuos1 = random.choices(population, weights=f, k=n_individuals)
         individuos2 = random.choices(population, weights=f, k=n_individuals)
         i = 0
@@ -185,36 +184,27 @@ def genetic_algotithm(data, n_individuals):
                 i += 1
                 if i == len(individuos1):
                     break
-                
-        sons = crossover(individuos1, individuos2)
-        
-    
-        
-        best_sons = select_sons(data, sons, n_individuals)
-        print ("Best sons:                   ", best_sons)
-        
-        best_kids_with_mutation = mutation(data, best_sons, n, m, n_individuals)
-        print ("Best sons with mutation:     ", best_kids_with_mutation)
-        
-        population = copy.deepcopy(best_kids_with_mutation)
-        print ("Population to new iteration: ", population, "\n")
-           
-    
 
-    
+        sons = crossover(individuos1, individuos2)
+
+        best_sons = select_sons(data, sons, n_individuals)
+        print("Best sons:                   ", best_sons)
+
+        best_kids_with_mutation = mutation(data, best_sons, reviewers_amount, max_articles, n_individuals)
+        print("Best sons with mutation:     ", best_kids_with_mutation)
+
+        population = copy.deepcopy(best_kids_with_mutation)
+        print("Population to new iteration: ", population, "\n")
+
 
 if __name__ == '__main__':
-    #leitura do arquivo
+    # leitura do arquivo
     data = read_input_file()
-    
+
     for i in range(10):
-        #execução do algoritmo genetico
-        #solution = genetic_algotithm(data)
-        genetic_algotithm(data, 4)
-    
-    
-    
-    #escrita do arquivo    
-    #write_output_file(solution)
-    
-    
+        # execução do algoritmo genetico
+        # solution = genetic_algotithm(data)
+        genetic_algorithm(data, 4)
+
+    # escrita do arquivo
+    # write_output_file(solution)
