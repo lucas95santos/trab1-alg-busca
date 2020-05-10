@@ -11,6 +11,7 @@
 
 
 import csv
+import copy
 import random
 
 #arquivos
@@ -44,8 +45,7 @@ aos pais
 """
 
 crossover_rate = 0.5
-#mutationra deve ser um valor alpha, onde 0 <= alpha <= m (numero de arquivos a ser revisados)
-mutationrate = 1
+mutationrate = 0.2
 maxgen = 100
 
 
@@ -122,7 +122,33 @@ def select_sons(data, sons, n_individuals):
     return ordained_sons[n_individuals:]
     
        
+def mutation(data, best_sons, n, m, n_individuals):
+    kids_mutation = []
+    #percorrer individuos
+    for i in range(n_individuals):        
+        
+        #print (int(round((n_individuals)*mutationrate)))
+        # percorrer numero de alterções "nos genes"
+        for j in range(int(round((n_individuals)*mutationrate))):
+            index_visited = []
+            while True:
+                #gerar possivel indice
+                random_index = random.randint(0,m-1)
+                #gerar possivel corretor
+                random_corretor = random.randint(0, n-1)
+                possible_kid = copy.copy(best_sons[i])
+                possible_kid[random_index] = random_corretor+1
                 
+                if (random_index not in index_visited and 
+                    possible_kid.count(random_corretor+1) <= data[random_corretor][m] and
+                    possible_kid != best_sons[i]):
+                    index_visited.append(random_index)
+                    kids_mutation.append(possible_kid)                    
+                    break
+                
+    return kids_mutation
+                
+            
 
 def genetic_algotithm(data, n_individuals):
     
@@ -142,6 +168,12 @@ def genetic_algotithm(data, n_individuals):
     #gera pares diferentes
     #seleção por roleta
     #usar python3.6 ou versão mais atualizada
+    
+    #
+    #
+    #
+    
+    
     individuos1 = random.choices(population, weights=f, k=n_individuals)
     individuos2 = random.choices(population, weights=f, k=n_individuals)
     i = 0
@@ -156,30 +188,19 @@ def genetic_algotithm(data, n_individuals):
             
     sons = crossover(individuos1, individuos2)
     
-    
-    #print (population)
-    #print (f)
-    #print ("Individuos 1: ", individuos1)
-    #print ("Individuos 2: ",  individuos2)
-    #print ("Filhos: ", sons)
+
     
     best_sons = select_sons(data, sons, n_individuals)
-    print ("Melhores filhos: ", best_sons)
+    print ("Melhores filhos:             ", best_sons)
     
     best_kids_with_mutation = mutation(data, best_sons, n, m, n_individuals)
+    print ("Melhores filhos com mutação: ", best_kids_with_mutation)
     
-    ##selecao
-    #f = fitness(data, population)
- 
-    ##crossover
+    population = copy.deepcopy(best_kids_with_mutation)
+    print ("Population to new iteration: ", population, "\n")
+           
     
-    
-    ##mutacao
-         
 
-        
-    
-      
     
 
 if __name__ == '__main__':
@@ -191,7 +212,9 @@ if __name__ == '__main__':
         #solution = genetic_algotithm(data)
         genetic_algotithm(data, 4)
     
-        #escrita do arquivo
-        #write_output_file(solution)
+    
+    
+    #escrita do arquivo    
+    #write_output_file(solution)
     
     
