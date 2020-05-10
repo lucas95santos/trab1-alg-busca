@@ -1,9 +1,12 @@
+#!/usr/bin/python3
 """
 	Nome - RGA:
 	Fábio Holanda Saraiva Júnior - 2015.1905.006-2
 	Felipe Salles Lopes - 2016.1907.032-4
 	Lucas Avanzi - 2016.1907.024-3
 	Lucas Antonio dos Santos - 2016.1907.013-8
+        
+        Utilizar versão 3.6 do python ou superior para correta execução do programa
 """
 
 
@@ -40,7 +43,7 @@ aos pais
 
 """
 
-crossover_rate = 0
+crossover_rate = 0.5
 #mutationra deve ser um valor alpha, onde 0 <= alpha <= m (numero de arquivos a ser revisados)
 mutationrate = 1
 maxgen = 100
@@ -74,27 +77,6 @@ def write_output_file(s):
     Processo de seleção por roleta
 """
 
-"""    
-    Seu algoritmo deve receber como entrada uma matriz N xM + 1, lida a partir de um arquivo
-    textual. Nesta matriz, N é o número de revisores cadastrados e M é o número de artigos a serem
-    atribuı́dos. Ao final de cada linha, estará expresso o máximo de artigos que o revisor aceita receber
-    (sempre maior ou igual a 1). Abaixo, um exemplo de entrada:
-    
-    0,0,3,4,4,1
-    3,3,0,0,1,2
-    4,0,0,1,0,1
-    2,2,2,3,2,2   
-    
-    Neste exemplo, 5 artigos foram recebidos e 4 revisores estão disponı́veis. O revisor 1 tem
-    afinidade 0 com os artigos 1 e 2; afinidade 3 com o artigo 3; afinidade 4 com os artigos 4 e 5; e
-    aceita receber, no máximo, 1 artigo para revisar.
-    
-    3,2,1,4,4
-    
-    Neste exemplo, o artigo 1 foi atribuı́do ao revisor 3; o artigo 2 ao revisor 2; o artigo 3 ao revisor
-    1; o artigo 4 ao revisor 4; e o artigo 5 também ao revisor 4.    
-    
-"""
 #geração da populaçao aleatoria
 def random_population(data, n, m, number_of_individuals):
     p = [] #lista da população gerada
@@ -119,7 +101,27 @@ def fitness(data, generation):
     return f
         
     
+def crossover(individuos1, individuos2):
+    sons = []
+    #calculo dos indices crossover
+    limit = int(round(len(individuos1[0])*crossover_rate))
+    for i in range(len(individuos1)):
+        son1 = individuos1[i][:limit]+individuos2[i][limit:]
+        son2 = individuos2[i][:limit]+individuos1[i][limit:]
+        sons.append(son1)
+        sons.append(son2)
+        
+    return sons
+
+def select_sons(data, sons, n_individuals):
+    F = fitness(data, sons)
+    ordained_sons = [x for _,x in sorted(zip(F,sons))]
+    #print("sons: ", sons)
+    #print("fitness: ", F)
+    #print("order:", ordained_sons[n_individuals:], "\n")
+    return ordained_sons[n_individuals:]
     
+       
                 
 
 def genetic_algotithm(data, n_individuals):
@@ -131,14 +133,48 @@ def genetic_algotithm(data, n_individuals):
     
     population = random_population(data, n, m, n_individuals)
     
+    
+    #TODO: estrutura de repetição
+    #for g in range(maxgen):
+    
+    f = fitness(data, population)
         
-    for g in range(maxgen):
-        #selecao
-        f = fitness(data, population)
-     
-        #crosover
-        
-        #mutacao
+    #gera pares diferentes
+    #seleção por roleta
+    #usar python3.6 ou versão mais atualizada
+    individuos1 = random.choices(population, weights=f, k=n_individuals)
+    individuos2 = random.choices(population, weights=f, k=n_individuals)
+    i = 0
+    while True:
+        if individuos1[i] == individuos2[i]:
+            individuos2 = random.choices(population, weights=f, k=n_individuals)
+            i = 0
+        else:
+            i += 1
+            if i == len(individuos1):
+                break
+            
+    sons = crossover(individuos1, individuos2)
+    
+    
+    #print (population)
+    #print (f)
+    #print ("Individuos 1: ", individuos1)
+    #print ("Individuos 2: ",  individuos2)
+    #print ("Filhos: ", sons)
+    
+    best_sons = select_sons(data, sons, n_individuals)
+    print ("Melhores filhos: ", best_sons)
+    
+    best_kids_with_mutation = mutation(data, best_sons, n, m, n_individuals)
+    
+    ##selecao
+    #f = fitness(data, population)
+ 
+    ##crossover
+    
+    
+    ##mutacao
          
 
         
@@ -153,7 +189,7 @@ if __name__ == '__main__':
     for i in range(10):
         #execução do algoritmo genetico
         #solution = genetic_algotithm(data)
-        genetic_algotithm(data, 10)
+        genetic_algotithm(data, 4)
     
         #escrita do arquivo
         #write_output_file(solution)
