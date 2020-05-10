@@ -1,67 +1,36 @@
 """
-	Nome - RGA:
-	Fábio Holanda Saraiva Júnior - 2015.1905.006-2
-	Felipe Salles Lopes - 2016.1907.032-4
-	Lucas Avanzi - 2016.1907.024-3
-	Lucas Antonio dos Santos - 2016.1907.013-8
+    Nome - RGA:
+    Fábio Holanda Saraiva Júnior - 2015.1905.006-2
+    Felipe Salles Lopes - 2016.1907.032-4
+    Lucas Avanzi - 2016.1907.024-3
+    Lucas Antonio dos Santos - 2016.1907.013-8
 """
 
 
-import csv
+import pandas as pd
 
-#arquivos
-inputpath = "./input.txt"
-graphic = "fitness.png"
-output = "saida-genetico.txt"
+class AlocacaoArtigos:
+
+    def __init__(self, crossoverrate=0.6, mutationrrate=0.02, maxgen=100, inputpath='input.txt'):
+        self.generation = 0
+        self.repeat = 10
+        self.best_solution_by_generation
+        self.mean_solutions
+        self.best_gen = maxgen
+        self.best_generations = []
+        self.best_solutions = []
+
+        self.article_reviewer_matrix = self.reader(inputpath)
+        self.outputpath = 'saida-genetico.txt'
 
 
-#parametros
-crossover = 0
-mutationrate = 0
-maxgen = 100
+    def reader(self, inputpath):
+        # Parâmetro r significa que está no modo de leitura (read).
+        with open('input.txt', 'r') as file:
+            matrix = [[int(num) for num in line.split(',')] for line in file]
 
+        return matrix
 
-"""
-    Parâmetros:
-    []crossover
-    []taxa de mutação
-    []maxgen
-    
-    Processo de seleção por roleta
-"""
-
-#realiza leitura do arquivo e retorna uma lista de listas 
-def read_input_file():
-    file_ = open(inputpath, "r")
-    reader = csv.reader(file_)
-    data = list(reader)
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            data[i][j] = int(data[i][j])        
-    return data
-
-    
-    
-#recebe uma lista e escreve no arquivo de saida a solucação encontrada
-def write_output_file(s):
-    file_ = open(output, 'w')
-    writer = csv.writer(file_)
-    writer.writerows(s)
-    file_.close()
-    
-    
-    
-
-if __name__ == '__main__':
-    #leitura do arquivo
-    data = read_input_file()
-    
-    #implementação do algoritmo genetico
-    #alguem se candidata???
-    #precisa-se de voluntarios
-    
-
-    #escrita do arquivo
-    write_output_file(data)
-    
-    
+    def run(self, crossoverrate, mutationrate, maxgen):
+        for i in range(self.repeat):
+            # TODO
