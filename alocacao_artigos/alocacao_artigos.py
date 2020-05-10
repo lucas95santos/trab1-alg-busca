@@ -161,43 +161,43 @@ def genetic_algotithm(data, n_individuals):
     
     
     #TODO: estrutura de repetição
-    #for g in range(maxgen):
+    for g in range(maxgen):
     
-    f = fitness(data, population)
-        
-    #gera pares diferentes
-    #seleção por roleta
-    #usar python3.6 ou versão mais atualizada
-    
-    #
-    #
-    #
-    
-    
-    individuos1 = random.choices(population, weights=f, k=n_individuals)
-    individuos2 = random.choices(population, weights=f, k=n_individuals)
-    i = 0
-    while True:
-        if individuos1[i] == individuos2[i]:
-            individuos2 = random.choices(population, weights=f, k=n_individuals)
-            i = 0
-        else:
-            i += 1
-            if i == len(individuos1):
-                break
+        f = fitness(data, population)
             
-    sons = crossover(individuos1, individuos2)
+        #gera pares diferentes
+        #seleção por roleta
+        #usar python3.6 ou versão mais atualizada
+        
+        #
+        #
+        #
+        
+        
+        individuos1 = random.choices(population, weights=f, k=n_individuals)
+        individuos2 = random.choices(population, weights=f, k=n_individuals)
+        i = 0
+        while True:
+            if individuos1[i] == individuos2[i]:
+                individuos2 = random.choices(population, weights=f, k=n_individuals)
+                i = 0
+            else:
+                i += 1
+                if i == len(individuos1):
+                    break
+                
+        sons = crossover(individuos1, individuos2)
+        
     
-
-    
-    best_sons = select_sons(data, sons, n_individuals)
-    print ("Melhores filhos:             ", best_sons)
-    
-    best_kids_with_mutation = mutation(data, best_sons, n, m, n_individuals)
-    print ("Melhores filhos com mutação: ", best_kids_with_mutation)
-    
-    population = copy.deepcopy(best_kids_with_mutation)
-    print ("Population to new iteration: ", population, "\n")
+        
+        best_sons = select_sons(data, sons, n_individuals)
+        print ("Best sons:                   ", best_sons)
+        
+        best_kids_with_mutation = mutation(data, best_sons, n, m, n_individuals)
+        print ("Best sons with mutation:     ", best_kids_with_mutation)
+        
+        population = copy.deepcopy(best_kids_with_mutation)
+        print ("Population to new iteration: ", population, "\n")
            
     
 
