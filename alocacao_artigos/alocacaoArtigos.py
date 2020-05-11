@@ -1,12 +1,11 @@
-#!/usr/bin/python3
 """
-	Nome - RGA:
-	Fábio Holanda Saraiva Júnior - 2015.1905.006-2
-	Felipe Salles Lopes - 2016.1907.032-4
-	Lucas Avanzi - 2016.1907.024-3
-	Lucas Antonio dos Santos - 2016.1907.013-8
-        
-        Utilizar versão 3.6 do python ou superior para correta execução do programa
+    Nome - RGA:
+    Fábio Holanda Saraiva Júnior - 2015.1905.006-2
+    Felipe Salles Lopes - 2016.1907.032-4
+    Lucas Avanzi - 2016.1907.024-3
+    Lucas Antonio dos Santos - 2016.1907.013-8
+
+    Utilizar versão 3.6 do python ou superior para correta execução do programa
 """
 
 import csv
@@ -21,24 +20,23 @@ output = "saida-genetico.txt"
 # parametros
 
 """
+Função de fitness: 
+- reflete quão bem adaptado é um individuo.
+- individuos mais aptos (melhor fitness) tem maior probabilidade de serem .
+selecionados para reprodução.
 
-função de fitness: 
--reflete quão bem adaptado é um individuo
--individuos mais aptos (melhor fitness) tem maior probabilidade de serem 
-selecionados para reprodução
+Técnica da roleta: 
+- cada individuo é dono de uma porção da  roleta.
+- individuos melhores adapatados (maior fitness) posuem maior chance de serem escolhidos.
 
-tecnica da roleta: 
--cada individuo é dono de uma porção da  roleta
--individuos melhores adapatados (maior fitness) posuem maior chance de serem escolhidos
+Crossover:
+- filhos recebem características de cada pai.
 
-crossover:
--filhos recebe caracteristicas de cada pai
-
-taxa de crossover é um valor escolhido como ponto de corte para determinar 
+Taxa de crossover é um valor escolhido como ponto de corte para determinar 
 se havera ou não cruzamento de dois cromossomos
 Tipicamente, taxa de crossover: 0,6 < TC < 1,0
 Caso crossover não seja aplicado, os descendentes serão iguais
-aos pais
+aos pais.
 
 """
 
@@ -47,14 +45,11 @@ mutationrate = 0.2
 maxgen = 100
 
 
-# realiza leitura do arquivo e retorna uma lista de listas
-def read_input_file():
-    file_ = open(inputpath, "r")
-    reader = csv.reader(file_)
-    data = list(reader)
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            data[i][j] = int(data[i][j])
+def reader():
+    # Parâmetro r significa que está no modo de leitura (read).
+    with open('input.txt', 'r') as file:
+        data = [[int(num) for num in line.split(',')] for line in file]
+
     return data
 
 
@@ -93,19 +88,20 @@ def random_population(data, reviewer_amount, max_articles, number_of_individuals
 
 
 # A função de fitness considera o grau de satisfação dos corretores em relação a distribuição escolhida
-def fitness(data, generation):
-    fitness_func = []
-    for k in range(len(generation)):
+def fitness_func(data, generation):
+    fitness = []
+    for i in range(len(generation)):
         sum = 0
-        for l in range(len(generation[k])):
-            sum += data[generation[k][l] - 1][l]
-        fitness_func.append(sum)
-    return fitness_func
+        for j in range(len(generation[i])):
+            reviewer = generation[i][j] - 1
+            sum += data[reviewer][j]
+        fitness.append(sum)
+    return fitness
 
 
 def crossover(individuos1, individuos2):
     sons = []
-    # calculo dos indices crossover
+    # Cálculo do ponto de corte.
     limit = int(round(len(individuos1[0]) * crossover_rate))
     for i in range(len(individuos1)):
         son1 = individuos1[i][:limit] + individuos2[i][limit:]
@@ -117,33 +113,30 @@ def crossover(individuos1, individuos2):
 
 
 def select_sons(data, sons, n_individuals):
-    F = fitness(data, sons)
-    ordained_sons = [x for _, x in sorted(zip(F, sons))]
-    # print("sons: ", sons)
-    # print("fitness: ", F)
-    # print("order:", ordained_sons[n_individuals:], "\n")
-    return ordained_sons[n_individuals:]
+    fitness = fitness_func(data, sons)
+    sorted_sons = [x for _, x in sorted(zip(fitness, sons))]
+
+    return sorted_sons[n_individuals:]
 
 
-def mutation(data, best_sons, n, m, n_individuals):
+def mutation(data, best_sons, reviewers_amount, max_articles, n_individuals):
     kids_mutation = []
-    # percorrer individuos
+    # Percorre indivíduos.
     for i in range(n_individuals):
 
-        # print (int(round((n_individuals)*mutationrate)))
-        # percorrer numero de alterções "nos genes"
-        for j in range(int(round((n_individuals) * mutationrate))):
+        # Percorre número de alterações "nos genes".
+        for j in range(int(round(n_individuals * mutationrate))):
             index_visited = []
             while True:
-                # gerar possivel indice
-                random_index = random.randint(0, m - 1)
-                # gerar possivel corretor
-                random_corretor = random.randint(0, n - 1)
+                # Gera possível índice.
+                random_index = random.randint(0, max_articles - 1)
+                # Gera possível corretor.
+                random_corrector = random.randint(0, reviewers_amount - 1)
                 possible_kid = copy.copy(best_sons[i])
-                possible_kid[random_index] = random_corretor + 1
+                possible_kid[random_index] = random_corrector + 1
 
                 if (random_index not in index_visited and
-                        possible_kid.count(random_corretor + 1) <= data[random_corretor][m] and
+                        possible_kid.count(random_corrector + 1) <= data[random_corrector][max_articles] and
                         possible_kid != best_sons[i]):
                     index_visited.append(random_index)
                     kids_mutation.append(possible_kid)
@@ -158,27 +151,29 @@ def genetic_algorithm(data, n_individuals):
     # max_articles equivale ao número de artigos a serem atribuidos para determinado revisor.
     max_articles = len(data[0]) - 1
 
+    population_evolution = []
+    fitness_evolution = []
+
     population = random_population(data, reviewers_amount, max_articles, n_individuals)
 
-    # TODO: estrutura de repetição
     for g in range(maxgen):
 
-        f = fitness(data, population)
+        fitness = fitness_func(data, population)
 
-        # gera pares diferentes
-        # seleção por roleta
-        # usar python3.6 ou versão mais atualizada
+        population_evolution.append(population)
+        fitness_evolution.append(fitness)
 
-        #
-        #
-        #
+        # Gera pares diferentes
+        # Seleção por roleta
 
-        individuos1 = random.choices(population, weights=f, k=n_individuals)
-        individuos2 = random.choices(population, weights=f, k=n_individuals)
+        individuos1 = random.choices(population, weights=fitness, k=n_individuals)
+        individuos2 = random.choices(population, weights=fitness, k=n_individuals)
         i = 0
+
+        # Verifica se o indivíduo não está cruzando com ele mesmo.
         while True:
             if individuos1[i] == individuos2[i]:
-                individuos2 = random.choices(population, weights=f, k=n_individuals)
+                individuos2 = random.choices(population, weights=fitness, k=n_individuals)
                 i = 0
             else:
                 i += 1
@@ -196,15 +191,24 @@ def genetic_algorithm(data, n_individuals):
         population = copy.deepcopy(best_kids_with_mutation)
         print("Population to new iteration: ", population, "\n")
 
+        return population_evolution, fitness_evolution
+
 
 if __name__ == '__main__':
     # leitura do arquivo
-    data = read_input_file()
+    data = reader()
+    total_evolution = []
+    total_fitness = []
 
     for i in range(10):
-        # execução do algoritmo genetico
-        # solution = genetic_algotithm(data)
-        genetic_algorithm(data, 4)
+        print("Execução: ", i)
+
+        population_ev, fitness_ev = genetic_algorithm(data, 8)
+        total_evolution.append(population_ev)
+        total_fitness.append(fitness_ev)
+
+    print(total_evolution, '\n')
+    print(total_fitness)
 
     # escrita do arquivo
     # write_output_file(solution)
