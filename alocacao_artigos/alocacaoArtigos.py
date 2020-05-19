@@ -17,8 +17,6 @@ inputpath = "./input.txt"
 graphic = "fitness.png"
 output = "saida-genetico.txt"
 
-<<<<<<< HEAD
-
 
 """
 Função de fitness: 
