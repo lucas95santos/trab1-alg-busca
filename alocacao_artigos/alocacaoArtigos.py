@@ -11,6 +11,7 @@
 import csv
 import copy
 import random
+import matplotlib.pyplot as plt
 
 # arquivos
 inputpath = "./input.txt"
@@ -41,8 +42,11 @@ aos pais.
 """
 
 crossover_rate = 0.5
-mutationrate = 0.2
+mutationrate = 0.02
 maxgen = 100
+
+total_population_evolution = []
+total_fitness_evolution = []
 
 
 def reader():
@@ -53,13 +57,10 @@ def reader():
     return data
 
 
-# recebe uma lista e escreve no arquivo de saida a solucação encontrada
-def write_output_file(s):
-    file_ = open(output, 'w')
-    writer = csv.writer(file_)
-    writer.writerows(s)
-    file_.close()
-
+def writer(content):
+    with open('saida-genetico.txt', 'w') as file:
+        for listitem in content:
+            file.write('%s,' % listitem)
 
 """
     Parâmetros:
@@ -75,15 +76,15 @@ def write_output_file(s):
 def random_population(data, reviewer_amount, max_articles, number_of_individuals):
     population = []  # Lista da população gerada.
     for j in range(number_of_individuals):
-        new_guy = []
+        article_dist = []
         for s in range(max_articles):
-            while len(new_guy) < max_articles:
+            while len(article_dist) < max_articles:
                 random_reviewer = random.randint(1, reviewer_amount)  # Gera um número aleatório de 1 à quantidade de
                 # revisores.
 
-                if new_guy.count(random_reviewer) < data[random_reviewer - 1][max_articles]:
-                    new_guy.append(random_reviewer)
-        population.append(new_guy)
+                if article_dist.count(random_reviewer) <= data[random_reviewer - 1][max_articles]:
+                    article_dist.append(random_reviewer)
+        population.append(article_dist)
     return population
 
 
@@ -119,30 +120,15 @@ def select_sons(data, sons, n_individuals):
     return sorted_sons[n_individuals:]
 
 
-def mutation(data, best_sons, reviewers_amount, max_articles, n_individuals):
-    kids_mutation = []
+def mutation(best_sons, reviewers_amount, max_articles):
     # Percorre indivíduos.
-    for i in range(n_individuals):
-
-        # Percorre número de alterações "nos genes".
-        for j in range(int(round(n_individuals * mutationrate))):
-            index_visited = []
-            while True:
-                # Gera possível índice.
-                random_index = random.randint(0, max_articles - 1)
-                # Gera possível corretor.
-                random_corrector = random.randint(0, reviewers_amount - 1)
-                possible_kid = copy.copy(best_sons[i])
-                possible_kid[random_index] = random_corrector + 1
-
-                if (random_index not in index_visited and
-                        possible_kid.count(random_corrector + 1) <= data[random_corrector][max_articles] and
-                        possible_kid != best_sons[i]):
-                    index_visited.append(random_index)
-                    kids_mutation.append(possible_kid)
-                    break
-
-    return kids_mutation
+    for line in range(len(best_sons)):
+        for column in range(len(best_sons[0])):
+            r = random.randint(0, 1)
+            if r <= mutationrate:
+                new_reviewer = random.randint(1, reviewers_amount)
+                if best_sons[line].count(new_reviewer) <= max_articles:
+                    best_sons[line][column] = new_reviewer
 
 
 def genetic_algorithm(data, n_individuals):
@@ -159,9 +145,6 @@ def genetic_algorithm(data, n_individuals):
     for g in range(maxgen):
 
         fitness = fitness_func(data, population)
-
-        population_evolution.append(population)
-        fitness_evolution.append(fitness)
 
         # Gera pares diferentes
         # Seleção por roleta
@@ -185,13 +168,26 @@ def genetic_algorithm(data, n_individuals):
         best_sons = select_sons(data, sons, n_individuals)
         print("Best sons:                   ", best_sons)
 
-        best_kids_with_mutation = mutation(data, best_sons, reviewers_amount, max_articles, n_individuals)
-        print("Best sons with mutation:     ", best_kids_with_mutation)
+        mutation(best_sons, reviewers_amount, max_articles)
+        print("Mutated Sons:     ", best_sons)
 
-        population = copy.deepcopy(best_kids_with_mutation)
+        population = copy.deepcopy(best_sons)
         print("Population to new iteration: ", population, "\n")
 
-        return population_evolution, fitness_evolution
+        mutated_fitness = fitness_func(data, best_sons)
+        best_fitness = max(mutated_fitness)
+        best_fitness_index = mutated_fitness.index(best_fitness)
+        best_individual = best_sons[best_fitness_index]
+
+        fitness_evolution.append(best_fitness)
+        population_evolution.append(best_individual)
+
+        total_fitness_evolution.extend(fitness_evolution)
+        total_population_evolution.extend(population_evolution)
+
+    plt.plot(fitness_evolution)
+    plt.ylabel('Fitness')
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -203,12 +199,15 @@ if __name__ == '__main__':
     for i in range(10):
         print("Execução: ", i)
 
-        population_ev, fitness_ev = genetic_algorithm(data, 8)
-        total_evolution.append(population_ev)
-        total_fitness.append(fitness_ev)
+        genetic_algorithm(data, 8)
 
-    print(total_evolution, '\n')
-    print(total_fitness)
+    best_fitness = max(total_fitness_evolution)
+    best_fitness_index = total_fitness_evolution.index(best_fitness)
+    best_individual = total_population_evolution[best_fitness_index]
 
+    print(best_fitness)
+    print(best_individual)
+
+    writer(best_individual)
     # escrita do arquivo
     # write_output_file(solution)
