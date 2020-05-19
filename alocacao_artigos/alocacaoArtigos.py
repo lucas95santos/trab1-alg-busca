@@ -1,18 +1,4 @@
-"""
-<<<<<<< HEAD
-	Nome - RGA:
-	Fábio Holanda Saraiva Júnior - 2015.1905.006-2
-	Felipe Salles Lopes - 2016.1907.032-4
-	Lucas Avanzi - 2016.1907.024-3
-	Lucas Antonio dos Santos - 2016.1907.013-8
-"""
-
-
-import csv
-
-#arquivos
-=======
-    Nome - RGA:
+""" Nome - RGA:
     Fábio Holanda Saraiva Júnior - 2015.1905.006-2
     Felipe Salles Lopes - 2016.1907.032-4
     Lucas Avanzi - 2016.1907.024-3
@@ -27,25 +13,17 @@ import random
 import matplotlib.pyplot as plt
 
 # arquivos
->>>>>>> alocacao_de_artigos
 inputpath = "./input.txt"
 graphic = "fitness.png"
 output = "saida-genetico.txt"
 
 <<<<<<< HEAD
 
-#parametros
-crossover = 0
-mutationrate = 0
-maxgen = 100
-
-=======
-# parametros
 
 """
 Função de fitness: 
-- reflete quão bem adaptado é um individuo.
-- individuos mais aptos (melhor fitness) tem maior probabilidade de serem .
+- reflete quão bem adaptado é um indivíduo.
+- indivíduos mais aptos (melhor fitness) tem maior probabilidade de serem
 selecionados para reprodução.
 
 Técnica da roleta: 
@@ -83,7 +61,6 @@ def writer(content):
     with open('saida-genetico.txt', 'w') as file:
         for listitem in content:
             file.write('%s,' % listitem)
->>>>>>> alocacao_de_artigos
 
 """
     Parâmetros:
@@ -94,43 +71,6 @@ def writer(content):
     Processo de seleção por roleta
 """
 
-<<<<<<< HEAD
-#realiza leitura do arquivo e retorna uma lista de listas 
-def read_input_file():
-    file_ = open(inputpath, "r")
-    reader = csv.reader(file_)
-    data = list(reader)
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            data[i][j] = int(data[i][j])        
-    return data
-
-    
-    
-#recebe uma lista e escreve no arquivo de saida a solucação encontrada
-def write_output_file(s):
-    file_ = open(output, 'w')
-    writer = csv.writer(file_)
-    writer.writerows(s)
-    file_.close()
-    
-    
-    
-
-if __name__ == '__main__':
-    #leitura do arquivo
-    data = read_input_file()
-    
-    #implementação do algoritmo genetico
-    #alguem se candidata???
-    #precisa-se de voluntarios
-    
-
-    #escrita do arquivo
-    write_output_file(data)
-    
-    
-=======
 
 # geração da populaçao aleatoria
 def random_population(data, reviewer_amount, max_articles, number_of_individuals):
@@ -271,4 +211,3 @@ if __name__ == '__main__':
     writer(best_individual)
     # escrita do arquivo
     # write_output_file(solution)
->>>>>>> alocacao_de_artigos
