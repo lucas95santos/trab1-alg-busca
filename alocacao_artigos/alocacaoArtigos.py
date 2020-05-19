@@ -1,17 +1,4 @@
 """
-<<<<<<< HEAD
-	Nome - RGA:
-	Fábio Holanda Saraiva Júnior - 2015.1905.006-2
-	Felipe Salles Lopes - 2016.1907.032-4
-	Lucas Avanzi - 2016.1907.024-3
-	Lucas Antonio dos Santos - 2016.1907.013-8
-"""
-
-
-import csv
-
-#arquivos
-=======
     Nome - RGA:
     Fábio Holanda Saraiva Júnior - 2015.1905.006-2
     Felipe Salles Lopes - 2016.1907.032-4
@@ -25,21 +12,13 @@ import csv
 import copy
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 # arquivos
->>>>>>> alocacao_de_artigos
 inputpath = "./input.txt"
 graphic = "fitness.png"
 output = "saida-genetico.txt"
 
-<<<<<<< HEAD
-
-#parametros
-crossover = 0
-mutationrate = 0
-maxgen = 100
-
-=======
 # parametros
 
 """
@@ -64,7 +43,7 @@ aos pais.
 """
 
 crossover_rate = 0.5
-mutationrate = 0.02
+mutationrate = 0.2
 maxgen = 100
 
 total_population_evolution = []
@@ -74,16 +53,15 @@ total_fitness_evolution = []
 def reader():
     # Parâmetro r significa que está no modo de leitura (read).
     with open('input.txt', 'r') as file:
-        data = [[int(num) for num in line.split(',')] for line in file]
+        matrix = [[int(num) for num in line.split(',')] for line in file]
 
-    return data
+    return matrix
 
 
 def writer(content):
     with open('saida-genetico.txt', 'w') as file:
         for listitem in content:
             file.write('%s,' % listitem)
->>>>>>> alocacao_de_artigos
 
 """
     Parâmetros:
@@ -94,62 +72,25 @@ def writer(content):
     Processo de seleção por roleta
 """
 
-<<<<<<< HEAD
-#realiza leitura do arquivo e retorna uma lista de listas 
-def read_input_file():
-    file_ = open(inputpath, "r")
-    reader = csv.reader(file_)
-    data = list(reader)
-    for i in range(len(data)):
-        for j in range(len(data[i])):
-            data[i][j] = int(data[i][j])        
-    return data
-
-    
-    
-#recebe uma lista e escreve no arquivo de saida a solucação encontrada
-def write_output_file(s):
-    file_ = open(output, 'w')
-    writer = csv.writer(file_)
-    writer.writerows(s)
-    file_.close()
-    
-    
-    
-
-if __name__ == '__main__':
-    #leitura do arquivo
-    data = read_input_file()
-    
-    #implementação do algoritmo genetico
-    #alguem se candidata???
-    #precisa-se de voluntarios
-    
-
-    #escrita do arquivo
-    write_output_file(data)
-    
-    
-=======
 
 # geração da populaçao aleatoria
-def random_population(data, reviewer_amount, max_articles, number_of_individuals):
+def random_population(reviewer_amount, articles_amount, number_of_individuals):
     population = []  # Lista da população gerada.
     for j in range(number_of_individuals):
         article_dist = []
-        for s in range(max_articles):
-            while len(article_dist) < max_articles:
+        for s in range(articles_amount):
+            while len(article_dist) < articles_amount:
                 random_reviewer = random.randint(1, reviewer_amount)  # Gera um número aleatório de 1 à quantidade de
-                # revisores.
 
-                if article_dist.count(random_reviewer) <= data[random_reviewer - 1][max_articles]:
+                # Verifica se o revisor não tem mais artigos do que ele aceita.
+                if article_dist.count(random_reviewer) <= data[random_reviewer - 1][articles_amount]:
                     article_dist.append(random_reviewer)
         population.append(article_dist)
     return population
 
 
 # A função de fitness considera o grau de satisfação dos corretores em relação a distribuição escolhida
-def fitness_func(data, generation):
+def fitness_func(generation):
     fitness = []
     for i in range(len(generation)):
         sum = 0
@@ -173,38 +114,38 @@ def crossover(individuos1, individuos2):
     return sons
 
 
-def select_sons(data, sons, n_individuals):
-    fitness = fitness_func(data, sons)
+def select_sons(sons, n_individuals):
+    fitness = fitness_func(sons)
     sorted_sons = [x for _, x in sorted(zip(fitness, sons))]
 
     return sorted_sons[n_individuals:]
 
 
-def mutation(best_sons, reviewers_amount, max_articles):
+def mutation(best_sons, reviewers_amount, articles_amount):
     # Percorre indivíduos.
     for line in range(len(best_sons)):
         for column in range(len(best_sons[0])):
-            r = random.randint(0, 1)
-            if r <= mutationrate:
+            r = np.random.randint(100)
+            if r <= mutationrate*100:
                 new_reviewer = random.randint(1, reviewers_amount)
-                if best_sons[line].count(new_reviewer) <= max_articles:
+                if best_sons[line].count(new_reviewer) <= data[new_reviewer - 1][articles_amount]:
                     best_sons[line][column] = new_reviewer
 
 
-def genetic_algorithm(data, n_individuals):
+def genetic_algorithm(n_individuals):
     # reviewers_amount representa o número de revisores cadastrados.
     reviewers_amount = len(data)
-    # max_articles equivale ao número de artigos a serem atribuidos para determinado revisor.
-    max_articles = len(data[0]) - 1
+    # articles_amount equivale ao número de artigos cadastrados.
+    articles_amount = len(data[0]) - 1
 
     population_evolution = []
     fitness_evolution = []
 
-    population = random_population(data, reviewers_amount, max_articles, n_individuals)
+    population = random_population(reviewers_amount, articles_amount, n_individuals)
 
     for g in range(maxgen):
 
-        fitness = fitness_func(data, population)
+        fitness = fitness_func(population)
 
         # Gera pares diferentes
         # Seleção por roleta
@@ -225,16 +166,16 @@ def genetic_algorithm(data, n_individuals):
 
         sons = crossover(individuos1, individuos2)
 
-        best_sons = select_sons(data, sons, n_individuals)
+        best_sons = select_sons(sons, n_individuals)
         print("Best sons:                   ", best_sons)
 
-        mutation(best_sons, reviewers_amount, max_articles)
+        mutation(best_sons, reviewers_amount, articles_amount)
         print("Mutated Sons:     ", best_sons)
 
         population = copy.deepcopy(best_sons)
         print("Population to new iteration: ", population, "\n")
 
-        mutated_fitness = fitness_func(data, best_sons)
+        mutated_fitness = fitness_func(best_sons)
         best_fitness = max(mutated_fitness)
         best_fitness_index = mutated_fitness.index(best_fitness)
         best_individual = best_sons[best_fitness_index]
@@ -259,7 +200,7 @@ if __name__ == '__main__':
     for i in range(10):
         print("Execução: ", i)
 
-        genetic_algorithm(data, 8)
+        genetic_algorithm(8)
 
     best_fitness = max(total_fitness_evolution)
     best_fitness_index = total_fitness_evolution.index(best_fitness)
@@ -271,4 +212,3 @@ if __name__ == '__main__':
     writer(best_individual)
     # escrita do arquivo
     # write_output_file(solution)
->>>>>>> alocacao_de_artigos
